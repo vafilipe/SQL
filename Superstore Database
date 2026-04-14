@@ -28,13 +28,12 @@ VALUES
 
 #For this project, I used SQL to query the Superstore database to get information about items sold at the store and their prices. 
 
-
-#Use a SELECT statement to order the items by price.
+#1. Use a SELECT statement to order the items by price.
 SELECT *
 FROM superstore
 ORDER BY price;
 
-#Show a different statistics about the item prices.
+#2. Show a different statistics about the item prices.
 SELECT SUM(price)
 FROM superstore;
 
@@ -50,12 +49,12 @@ FROM superstore;
 SELECT COUNT(price)
 FROM superstore;
 
-#Show a statistic about the price for items in the category of "Kitchen Supplies". 
+#3. Show a statistic about the price for items in the category of "Kitchen Supplies". 
 SELECT SUM(price)
 FROM  superstore
 WHERE category = 'Kitchen Supplies';
 
-#Show the total of slow cookers in stock.
+#4. Show the total of slow cookers in stock.
 SELECT stock_quantity
 FROM superstore
 WHERE item_name='Slow Cooker';
