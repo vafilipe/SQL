@@ -57,4 +57,4 @@ WHERE category = 'Kitchen Supplies';
 #4. Show the total of slow cookers in stock.
 SELECT stock_quantity
 FROM superstore
-WHERE item_name='Slow Cooker';
+WHERE item_name='Slow Cooker'; 
