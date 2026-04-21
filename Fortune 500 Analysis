@@ -102,3 +102,13 @@ SELECT company_name, max(revenue)
 FROM fortune_companies
 WHERE industry = 'Retail'
 ;
+
+
+
+--Which industries have an average maternity leave of more than 10 weeks, considering only companies that offer healthcare benefits?
+
+SELECT industry, ROUND(AVG(maternity_leave_weeks),1) as avg_maternity_leave
+FROM fortune_companies
+WHERE healthcare_benefits=1
+GROUP BY industry
+HAVING avg_maternity_leave>10;
