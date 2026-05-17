@@ -168,13 +168,13 @@ LEFT JOIN hotels h ON r.hotel = h.hotel_id;
 --4. Find VIPs who provide feedback to others and the corresponding VIPs who receive their feedback.
 
 SELECT v1.first_name AS feedback_giver, v1.last_name AS giver_last
-, v2.first_name AS receiver_giver, v2.last_name AS giver_last
+, v2.first_name AS receiver_giver, v2.last_name AS receiver_last
 FROM vips v1
 JOIN vips v2 ON v1.provides_feedback_to = v2.member_id;
 
 
 
---4. Find VIPs staying at the hotel with the most reservations.
+--5. Find VIPs staying at the hotel with the most reservations.
 
 SELECT v.first_name
 , v.last_name
@@ -192,7 +192,7 @@ WHERE r.hotel = (
 
 
 
---5. Get a list of all government-affiliated VIPs who have RSVP’d for dinner.
+--6. Get a list of all government-affiliated VIPs who have RSVP’d for dinner.
 
 SELECT v.first_name
 , v.last_name
@@ -204,7 +204,7 @@ WHERE r.dinner_rsvp = 1 AND v.assoc_type = 'government' ;
 
 
 
---6. Find the number of VIPs attending each event, ordered by event attendance.
+--7. Find the number of VIPs attending each event, ordered by event attendance.
 
 SELECT e.event_name, COUNT(v.member_id) AS attendee_count
 FROM events e
