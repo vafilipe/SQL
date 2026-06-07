@@ -37,11 +37,6 @@ SELECT distinct Product, price
 FROM BIT_DB.JanSales
 WHERE  price in (SELECT min(price) FROM BIT_DB.JanSales)
 
-          #OR#
-
-SELECT distinct product, price FROM BIT_DB.JanSales 
-ORDER BY price ASC LIMIT 1;
-
 
 
 #5. What is the total revenue for each product sold in January?
@@ -78,10 +73,16 @@ AND orderid <> 'Order ID';
 #8. List all the products sold in Los Angeles in February, and include how many of each were sold.
 
 
-SELECT Product, SUM(quantity)
+SELECT 
+    Product, 
+    SUM(Quantity) AS total_quantity
 FROM BIT_DB.FebSales
-WHERE location like '%Los Angeles%'
-GROUP BY Product;
+WHERE location LIKE '%Los Angeles%'
+  AND orderID IS NOT NULL 
+  AND orderID != '' 
+  AND orderID != 'Order ID'
+GROUP BY Product
+ORDER BY total_quantity DESC;
 
 
 
@@ -126,18 +127,7 @@ AND orderid <> 'Order ID';
 
 
 
-#12. What was the average quantity of products purchased per account in February?
-
-SELECT sum(quantity)/count(cust.acctnum)
-FROM BIT_DB.FebSales Feb
-LEFT JOIN BIT_DB.customers cust
-ON FEB.orderid=cust.order_id
-WHERE length(orderid) = 6 
-AND orderid <> 'Order ID';
-
-
-
-#13. Which product brought in the most revenue in January and how much revenue did it bring in total?
+#12. Which product brought in the most revenue in January and how much revenue did it bring in total?
 
 SELECT Product, sum (quantity * price) AS revenue
 FROM BIT_DB.JanSales
