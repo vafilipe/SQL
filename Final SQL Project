@@ -1,4 +1,4 @@
-# For this project, I used a database from SQLiteStudio.
+# For this project, I used a database in SQLiteStudio.
 
 
 #1. Show Customers (their full names, customer ID, and country) who are not in the US. (Hint: != or <> can be used to say "is not equal to").
@@ -23,7 +23,7 @@ SELECT cust.FirstName, cust.LastName, inv.InvoiceId, inv.BillingCountry, inv.Inv
 FROM chinook.invoices as inv 
 LEFT JOIN chinook.customers as cust 
 on inv.CustomerId = cust.CustomerId 
-WHERE inv.BillingCountry = "Brazil";
+WHERE inv.BillingCountry = 'Brazil';
 
 
 
@@ -53,10 +53,14 @@ JOIN chinook.Invoices inv ON inv.CustomerId = cust.Customerid;
 
 #7. Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
 
-SELECT emp.LastName, emp.Firstname, cust.FirstName, cust.LastName, cust.Country, inv.total
+SELECT 
+    inv.total AS 'Invoice Total',
+    cust.FirstName || ' ' || cust.LastName AS 'Customer Name',
+    cust.Country,
+    emp.FirstName || ' ' || emp.LastName AS 'Sales Agent Name'
 FROM chinook.employees emp 
-JOIN chinook.Customers cust ON cust.SupportRepId = emp.EmployeeId
-JOIN chinook.Invoices Inv ON Inv.CustomerId = cust.CustomerId;
+JOIN chinook.customers cust ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.invoices inv ON inv.CustomerId = cust.CustomerId;
 
 
 
@@ -78,46 +82,53 @@ WHERE InvoiceDate BETWEEN '2009-01-01' AND '2009-12-31';
 
 #10. Write a query that includes the purchased track name with each invoice line ID.
 
-SELECT t.Name, i.InvoiceLineId
+SELECT 
+    t.Name AS TrackName, 
+    i.InvoiceLineId
 FROM chinook.Invoice_items i
-JOIN chinook.Tracks t 
-ON i.TrackId = t.TrackId;
+JOIN chinook.Tracks t ON i.TrackId = t.TrackId
+ORDER BY i.InvoiceLineId;
 
 
 
 #11. Write a query that includes the purchased track name AND artist name with each invoice line ID.
 
-SELECT ar.name as Artist, t.Name as Track, i.InvoiceLineId
+SELECT 
+    ar.Name AS Artist, 
+    t.Name AS Track, 
+    i.InvoiceLineId
 FROM chinook.Invoice_items i
-LEFT JOIN chinook.tracks t 
-ON i.TrackID=t.TrackID
-INNER JOIN chinook.albums a
-ON a.AlbumID=t.AlbumID
-LEFT JOIN chinook.artists ar
-ON ar.ArtistID=a.ArtistID;
+INNER JOIN chinook.Tracks t ON i.TrackId = t.TrackId
+INNER JOIN chinook.Albums a ON t.AlbumId = a.AlbumId
+INNER JOIN chinook.Artists ar ON a.ArtistId = ar.ArtistId
+ORDER BY i.InvoiceLineId;
 
 
 
 #12. Provide a query that shows all the Tracks, and include the Album name, Media type, and Genre.
 
-SELECT t.Name AS 'Track Name', a.Title AS 'Album Title', m.Name AS 'Media Type', g.Name AS 'Genre'
-FROM chinook.tracks t
-JOIN chinook.albums a ON a.AlbumId = t.AlbumId
-JOIN chinook.media_types m ON m.MediaTypeId = t.MediaTypeId
-JOIN chinook.genres g ON g.GenreId= t.GenreId;
+SELECT 
+    t.Name AS Track_Name, 
+    a.Title AS Album_Title, 
+    m.Name AS Media_Type, 
+    g.Name AS Genre
+FROM chinook.Tracks t
+INNER JOIN chinook.Albums a ON t.AlbumId = a.AlbumId
+INNER JOIN chinook.Media_types m ON t.MediaTypeId = m.MediaTypeId
+INNER JOIN chinook.Genres g ON t.GenreId = g.GenreId;
 
 
 
 #13. Show the total sales made by each sales agent.
 
 SELECT 
-    e.FirstName || ' ' || e.LastName as SalesAgent,
+    e.FirstName || ' ' || e.LastName AS SalesAgent,
     SUM(i.Total) AS TotalSales
-FROM chinook.employees e
-JOIN chinook.customers c ON e.EmployeeId = c.SupportRepId
-JOIN chinook.invoices i ON c.CustomerId = i.CustomerId
+FROM chinook.Employees e
+INNER JOIN chinook.Customers c ON e.EmployeeId = c.SupportRepId
+INNER JOIN chinook.Invoices i ON c.CustomerId = i.CustomerId
 WHERE e.Title = 'Sales Support Agent'
-GROUP BY e.EmployeeId, SalesAgent
+GROUP BY e.EmployeeId -- Grouping by the unique ID is enough to separate the agents
 ORDER BY TotalSales DESC;
 
 
@@ -127,11 +138,45 @@ ORDER BY TotalSales DESC;
 SELECT 
     e.FirstName || ' ' || e.LastName AS SalesAgent,
     SUM(i.Total) AS TotalSales
-FROM chinook.employees e
-JOIN chinook.customers c ON e.EmployeeId = c.SupportRepId
-JOIN chinook.invoices i ON c.CustomerId = i.CustomerId
+FROM chinook.Employees e
+INNER JOIN chinook.Customers c ON e.EmployeeId = c.SupportRepId
+INNER JOIN chinook.Invoices i ON c.CustomerId = i.CustomerId
 WHERE e.Title = 'Sales Support Agent'
-AND strftime('%Y', i.InvoiceDate) = '2009'
-GROUP BY e.EmployeeId, SalesAgent
+  AND i.InvoiceDate >= '2009-01-01' 
+  AND i.InvoiceDate < '2010-01-01'
+GROUP BY e.EmployeeId
 ORDER BY TotalSales DESC
+LIMIT 1;
+
+
+
+#15. Customers spending above average.
+
+SELECT 
+    c.FirstName || ' ' || c.LastName AS CustomerName,
+    SUM(i.Total) AS TotalSpent
+FROM chinook.Customers c
+INNER JOIN chinook.Invoices i ON c.CustomerId = i.CustomerId
+GROUP BY c.CustomerId
+HAVING TotalSpent > (
+    SELECT AVG(CustomerTotal)
+    FROM (
+        SELECT SUM(Total) AS CustomerTotal
+        FROM chinook.Invoices
+        GROUP BY CustomerId
+    )
+)
+ORDER BY TotalSpent DESC;
+
+
+
+#16. Top Country by Revenue(Excluding the USA)
+
+SELECT 
+    i.BillingCountry,
+    SUM(i.Total) AS TotalRevenue
+FROM chinook.Invoices i
+WHERE i.BillingCountry <> 'USA'
+GROUP BY i.BillingCountry
+ORDER BY TotalRevenue DESC
 LIMIT 1;
